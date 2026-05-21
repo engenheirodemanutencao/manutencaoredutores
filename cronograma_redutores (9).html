@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronograma de Troca de Óleo — Redutores</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#e2e8f0;min-height:100vh}
+.app{max-width:1200px;margin:0 auto;padding:1.5rem}
+
+h1{font-size:20px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px;color:#f1f5f9}
+.subtitle{font-size:12px;color:#475569;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.save-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.save-status{font-size:11px;color:#475569;display:flex;align-items:center;gap:5px}
+.save-status.saved{color:#22c55e}
+.save-status.unsaved{color:#f59e0b}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid #1e293b;margin-bottom:1.25rem;gap:2px;flex-wrap:wrap}
+.tab{padding:9px 18px;font-size:13px;cursor:pointer;border:none;background:transparent;color:#475569;border-bottom:2px solid transparent;font-family:inherit;transition:all .15s;white-space:nowrap}
+.tab.active{color:#f1f5f9;border-bottom:2px solid #3b82f6;font-weight:500}
+.tab:hover:not(.active){color:#94a3b8}
+
+/* STAT GRID — 8 cards agora */
+.stat-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:1.25rem}
+.stat{background:#111827;border:1px solid #1e293b;border-radius:10px;padding:12px;text-align:center}
+.stat .num{font-size:20px;font-weight:600;line-height:1.2}
+.stat .lbl{font-size:9px;color:#475569;margin-top:3px;text-transform:uppercase;letter-spacing:.5px;line-height:1.3}
+.stat.u .num{color:#ef4444}
+.stat.a .num{color:#f59e0b}
+.stat.o .num{color:#22c55e}
+.stat.s .num{color:#475569}
+.stat.v220 .num{color:#818cf8}
+.stat.v320 .num{color:#38bdf8}
+.stat.vtot .num{color:#34d399;font-size:16px}
+.stat.vtot2 .num{color:#fb923c;font-size:16px}
+
+/* CARDS */
+.card{background:#111827;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1.25rem}
+.card-title{font-size:15px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:#f1f5f9}
+.card-sub{font-size:12px;color:#475569;margin-bottom:1rem}
+
+/* TAGS */
+.dual-tag{font-size:10px;background:#292524;color:#fbbf24;padding:1px 6px;border-radius:99px;border:1px solid #44403c}
+.pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.pill.urg{background:#450a0a;color:#ef4444;border:1px solid #7f1d1d}
+.pill.ale{background:#451a03;color:#f59e0b;border:1px solid #78350f}
+.pill.ok{background:#052e16;color:#22c55e;border:1px solid #14532d}
+.pill.sem{background:#1e293b;color:#475569;border:1px solid #334155}
+
+/* VOL BADGE */
+.vol-badge{display:inline-flex;align-items:center;gap:4px;border-radius:6px;font-size:11px;font-weight:600;padding:2px 8px;white-space:nowrap}
+.vol-badge.v220{background:#1e1b4b;color:#818cf8;border:1px solid #312e81}
+.vol-badge.v320{background:#0c1a2e;color:#38bdf8;border:1px solid #0c4a6e}
+.vol-badge.na{background:#1e293b;color:#475569;border:1px solid #334155}
+
+/* SEARCH */
+.search-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.search-row input{padding:7px 12px;border:1px solid #1e293b;border-radius:8px;font-size:13px;font-family:inherit;width:200px;outline:none;background:#111827;color:#e2e8f0}
+.search-row input:focus{border-color:#3b82f6}
+.filter-btns{display:flex;gap:6px;flex-wrap:wrap}
+.fbtn{padding:5px 14px;border-radius:99px;border:1px solid #1e293b;background:transparent;color:#475569;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.fbtn.active{background:#1e3a5f;color:#93c5fd;border-color:#1d4ed8}
+.fbtn:hover:not(.active){border-color:#334155;color:#94a3b8}
+
+/* MONTH HEADER */
+.month-hdr{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;background:#111827;border:1px solid #1e293b;margin-bottom:6px;flex-wrap:wrap}
+.month-hdr.urg{background:#1a0000;border-color:#7f1d1d}
+.month-hdr .mlbl{font-size:13px;font-weight:600;color:#f1f5f9}
+.month-hdr.urg .mlbl{color:#ef4444}
+.month-hdr .msub{font-size:12px;color:#475569;font-weight:400}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px;background:#111827;border-radius:10px;overflow:hidden;margin-bottom:1.5rem;border:1px solid #1e293b}
+th{font-size:10px;color:#475569;font-weight:500;padding:8px 12px;text-align:left;background:#0f172a;border-bottom:1px solid #1e293b;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #1e293b;vertical-align:middle;color:#cbd5e1}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#0f172a}
+.maq-id{font-weight:600;font-size:13px;color:#f1f5f9}
+.prog-bg{height:4px;background:#1e293b;border-radius:3px;overflow:hidden;margin-top:5px;width:90px}
+.prog-fill{height:100%;border-radius:3px}
+.changed-tag{font-size:10px;color:#60a5fa;margin-left:5px}
+
+/* ENTRADA GRID */
+.entrada-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.ei{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:10px 12px;transition:border .15s}
+.ei:focus-within{border-color:#3b82f6}
+.ei .ei-id{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:2px;color:#f1f5f9}
+.ei .ei-mod{font-size:10px;color:#475569;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ei .ei-tipo{font-size:10px;margin-bottom:6px;font-weight:500}
+.ei .ei-tipo.t220{color:#818cf8}
+.ei .ei-tipo.t320{color:#38bdf8}
+.ei .ei-tipo.tna{color:#475569}
+.ei input{width:100%;font-size:13px;padding:6px 9px;border-radius:7px;border:1px solid #1e293b;background:#111827;color:#e2e8f0;font-family:inherit;transition:border .15s}
+.ei input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px #3b82f620}
+.ei input.changed{border-color:#3b82f6;background:#0c1a2e}
+.ei input.vol-changed-220{border-color:#818cf8;background:#1e1b4b}
+.ei input.vol-changed-320{border-color:#38bdf8;background:#0c1a2e}
+.ei .ei-orig{font-size:10px;color:#334155;margin-top:5px}
+.ei .ei-saved{font-size:10px;margin-top:5px}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:8px;margin-top:14px;align-items:center;flex-wrap:wrap}
+.btn-primary{padding:8px 20px;border-radius:8px;border:none;background:#1d4ed8;color:#fff;font-size:13px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-primary:hover{background:#2563eb}
+.btn-sec{padding:8px 18px;border-radius:8px;border:1px solid #1e293b;background:transparent;color:#94a3b8;font-size:13px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-sec:hover{background:#1e293b;color:#e2e8f0}
+.note-ok{font-size:12px;color:#22c55e;background:#052e16;border:1px solid #14532d;border-radius:8px;padding:6px 12px;display:none;align-items:center;gap:6px}
+
+/* GANTT */
+.gantt-wrap{overflow-x:auto;background:#111827;border-radius:12px;border:1px solid #1e293b;padding:1rem}
+.g-ruler{display:flex;margin-left:130px;margin-bottom:6px}
+.g-ruler-cell{flex:1;font-size:10px;color:#334155;border-left:1px solid #1e293b;padding-left:4px;font-weight:500}
+.g-row{display:flex;align-items:center;height:28px}
+.g-label{width:130px;flex-shrink:0;font-size:12px;font-weight:600;padding-right:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;color:#e2e8f0}
+.g-bar{flex:1;height:18px;background:#0f172a;border-radius:4px;position:relative;overflow:hidden;border:1px solid #1e293b}
+.g-days{width:56px;flex-shrink:0;text-align:right;font-size:11px;color:#334155;padding-left:8px}
+.g-gl{position:absolute;top:0;bottom:0;width:1px;background:#1e293b;z-index:1}
+.g-fill{position:absolute;top:0;left:0;height:100%;z-index:2}
+.g-pin{position:absolute;top:0;bottom:0;z-index:3;width:2px}
+.g-pin-lbl{position:absolute;top:50%;left:4px;transform:translateY(-50%);font-size:9px;white-space:nowrap;padding:1px 4px;border-radius:3px;background:#111827;border:1px solid #1e293b;color:#64748b;z-index:4}
+.g-ov{position:absolute;inset:0;background:repeating-linear-gradient(45deg,#1a0000,#1a0000 5px,#2d0000 5px,#2d0000 10px);z-index:3;display:flex;align-items:center;padding-left:8px}
+.g-ov span{font-size:9px;color:#ef4444;font-weight:600}
+.g-nd{position:absolute;inset:0;display:flex;align-items:center;padding-left:8px}
+.g-nd span{font-size:9px;color:#334155}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:#475569}
+.leg-dot{width:12px;height:8px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:4px}
+
+/* VOLUME */
+.vol-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:1.25rem}
+.vol-sum-card{background:#111827;border:1px solid #1e293b;border-radius:10px;padding:14px 16px}
+.vol-sum-card .vs-label{font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.vol-sum-card .vs-val{font-size:22px;font-weight:600}
+.vol-sum-card .vs-sub{font-size:11px;color:#334155;margin-top:3px}
+.vol-sum-card.v220 .vs-val{color:#818cf8}
+.vol-sum-card.v320 .vs-val{color:#38bdf8}
+.vol-sum-card.vtot .vs-val{color:#34d399}
+.vol-sum-card.vna .vs-val{color:#475569}
+.vol-table-wrap{background:#111827;border-radius:12px;border:1px solid #1e293b;overflow:hidden}
+
+/* CONFIGURAÇÕES TAB */
+.config-section{background:#111827;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.config-section-title{font-size:14px;font-weight:600;color:#f1f5f9;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.config-section-sub{font-size:12px;color:#475569;margin-bottom:1rem}
+.config-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.config-label{font-size:13px;color:#94a3b8;min-width:220px}
+.config-input-wrap{display:flex;align-items:center;gap:8px}
+.config-input-wrap input{width:110px;padding:7px 10px;border:1px solid #1e293b;border-radius:8px;background:#0f172a;color:#e2e8f0;font-size:14px;font-family:inherit;font-weight:600}
+.config-input-wrap input:focus{outline:none;border-color:#3b82f6}
+.config-input-wrap .unit{font-size:12px;color:#475569}
+.config-preview{font-size:12px;color:#22c55e;padding:8px 14px;background:#052e16;border:1px solid #14532d;border-radius:8px;display:inline-flex;align-items:center;gap:6px}
+.per-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-top:10px}
+.per-card{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:10px 12px;transition:border .15s}
+.per-card:focus-within{border-color:#3b82f6}
+.per-card .pc-id{font-size:13px;font-weight:600;color:#f1f5f9;display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.per-card .pc-mod{font-size:10px;color:#475569;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.per-card input{width:100%;padding:6px 9px;border-radius:7px;border:1px solid #1e293b;background:#111827;color:#e2e8f0;font-size:13px;font-family:inherit}
+.per-card input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px #3b82f620}
+.per-card input.per-custom{border-color:#818cf8;background:#1e1b4b}
+.per-card .pc-default{font-size:10px;color:#334155;margin-top:4px}
+
+/* MODELO CONFIG */
+.mod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:10px}
+.mod-card{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:10px 12px;transition:border .15s}
+.mod-card:focus-within{border-color:#3b82f6}
+.mod-card .mc-id{font-size:13px;font-weight:600;color:#f1f5f9;display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.mod-card .mc-orig{font-size:10px;color:#334155;margin-top:4px}
+.mod-card .mc-lbl{font-size:10px;color:#475569;margin-bottom:3px;margin-top:4px}
+.mod-card input{width:100%;padding:6px 9px;border-radius:7px;border:1px solid #1e293b;background:#111827;color:#e2e8f0;font-size:12px;font-family:inherit}
+.mod-card input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px #3b82f620}
+.mod-card input.mod-custom{border-color:#f59e0b;background:#1c1200}
+.mod-saved{font-size:10px;color:#f59e0b;margin-top:4px}
+
+/* OIL TYPE CONFIG */
+.oil-type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:10px}
+.ot-card{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:10px 12px;transition:border .15s}
+.ot-card:focus-within{border-color:#3b82f6}
+.ot-card .ot-id{font-size:13px;font-weight:600;color:#f1f5f9;display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.ot-card .ot-mod{font-size:10px;color:#475569;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ot-card .ot-lbl{font-size:10px;color:#475569;margin-bottom:3px;margin-top:4px}
+.ot-card select{width:100%;padding:6px 9px;border-radius:7px;border:1px solid #1e293b;background:#111827;color:#e2e8f0;font-size:12px;font-family:inherit;cursor:pointer}
+.ot-card select:focus{outline:none;border-color:#3b82f6}
+.ot-card select.sel-220{border-color:#818cf8;background:#1e1b4b;color:#c4b5fd}
+.ot-card select.sel-320{border-color:#38bdf8;background:#0c1a2e;color:#7dd3fc}
+.ot-orig{font-size:10px;color:#334155;margin-top:4px}
+.ot-changed{font-size:10px;color:#22c55e;margin-top:4px}
+
+/* Horimeter field differentiation */
+.hor-atual-label{font-size:10px;font-weight:600;color:#38bdf8;margin-bottom:3px;margin-top:4px;display:flex;align-items:center;gap:4px}
+.hor-troca-label{font-size:10px;font-weight:600;color:#f59e0b;margin-bottom:3px;display:flex;align-items:center;gap:4px;border-top:1px dashed #1e293b;padding-top:8px;margin-top:2px}
+.ei input.changed-atual{border-color:#38bdf8;background:#0c1a2e}
+.ei input.changed-troca{border-color:#f59e0b;background:#1c1200}
+
+/* OIL TYPE DIVIDERS in volume tab */
+.oil-section-hdr{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:8px;margin-bottom:6px;font-size:13px;font-weight:600}
+.oil-section-hdr.s220{background:#1e1b4b;border:1px solid #312e81;color:#818cf8}
+.oil-section-hdr.s320{background:#0c1a2e;border:1px solid #0c4a6e;color:#38bdf8}
+.oil-section-hdr.sna{background:#1e293b;border:1px solid #334155;color:#475569}
+
+/* FILIAL SELECTOR */
+.filial-bar{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
+.filial-label{font-size:12px;color:#475569;white-space:nowrap}
+.filial-btn{padding:8px 22px;border-radius:99px;border:1px solid #1e293b;background:transparent;color:#475569;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px}
+.filial-btn:hover:not(.active){border-color:#334155;color:#94a3b8}
+.filial-btn.active.matriz{background:#1e3a5f;border-color:#1d4ed8;color:#93c5fd}
+.filial-btn.active.minas{background:#1a2e1a;border-color:#166534;color:#4ade80}
+.filial-btn.rio{color:#475569}
+.filial-btn.active.rio{background:#2d1b4e;border-color:#7c3aed;color:#c4b5fd}
+.filial-badge.rio{background:#7c3aed;color:#fff}
+.filial-badge{font-size:10px;padding:1px 6px;border-radius:99px;font-weight:600}
+.filial-badge.matriz{background:#1d4ed8;color:#fff}
+.filial-badge.minas{background:#16a34a;color:#fff}
+.filial-divider{width:1px;height:24px;background:#1e293b}
+
+@media(max-width:900px){
+  .stat-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:600px){
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1><i class="ti ti-engine"></i> Sistema de Manutenção Preventiva</h1>
+  <div class="subtitle">
+    <span>Cronograma de Troca de Óleo — Redutores &nbsp;·&nbsp; Filial: <strong id="filial-indicator">GG MATRIZ</strong> &nbsp;·&nbsp; Ref: 19/05/2026</span>
+    <div class="save-bar">
+      <span class="save-status" id="save-status"><i class="ti ti-cloud-check"></i> <span id="save-label">Verificando...</span></span>
+      <button class="btn-sec" style="padding:5px 12px;font-size:12px" onclick="forceRefresh()"><i class="ti ti-refresh"></i> Atualizar</button>
+      <button class="btn-sec" style="padding:5px 12px;font-size:12px" onclick="exportJSON()"><i class="ti ti-download"></i> Exportar backup</button>
+      <label class="btn-sec" style="padding:5px 12px;font-size:12px;cursor:pointer"><i class="ti ti-upload"></i> Importar backup<input type="file" accept=".json" onchange="importJSON(event)" style="display:none"></label>
+    </div>
+  </div>
+
+  <!-- 8 STAT CARDS -->
+  <div class="stat-grid">
+    <div class="stat u"><div class="num" id="st-urg">0</div><div class="lbl">Urgente</div></div>
+    <div class="stat a"><div class="num" id="st-ale">0</div><div class="lbl">Alerta ≤30d</div></div>
+    <div class="stat o"><div class="num" id="st-ok">0</div><div class="lbl">OK</div></div>
+    <div class="stat s"><div class="num" id="st-sem">0</div><div class="lbl">Sem dados</div></div>
+    <div class="stat v220"><div class="num" id="st-220-mes">—</div><div class="lbl">ISO 220<br>mês atual (L)</div></div>
+    <div class="stat v320"><div class="num" id="st-320-mes">—</div><div class="lbl">ISO VG 320<br>mês atual (L)</div></div>
+    <div class="stat vtot"><div class="num" id="st-220-tot">—</div><div class="lbl">ISO 220<br>total projetado (L)</div></div>
+    <div class="stat vtot2"><div class="num" id="st-320-tot">—</div><div class="lbl">ISO VG 320<br>total projetado (L)</div></div>
+  </div>
+
+  <!-- FILIAL SELECTOR -->
+  <div class="filial-bar" id="filial-bar">
+    <span class="filial-label"><i class="ti ti-building"></i> Filial:</span>
+    <button class="filial-btn active matriz" id="fbtn-GG MATRIZ" onclick="switchFilial('GG MATRIZ')">
+      <i class="ti ti-building-factory-2"></i> GG MATRIZ
+      <span class="filial-badge matriz" id="fbadge-GG MATRIZ">32</span>
+    </button>
+    <div class="filial-divider"></div>
+    <button class="filial-btn minas" id="fbtn-GG MINAS" onclick="switchFilial('GG MINAS')">
+      <i class="ti ti-building-warehouse"></i> GG MINAS
+      <span class="filial-badge minas" id="fbadge-GG MINAS">20</span>
+    </button>
+    <div class="filial-divider"></div>
+    <button class="filial-btn rio" id="fbtn-GG RIO" onclick="switchFilial('GG RIO')">
+      <i class="ti ti-building-bridge"></i> GG RIO
+      <span class="filial-badge rio" id="fbadge-GG RIO">4</span>
+    </button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('schedule')"><i class="ti ti-calendar"></i> Cronograma</button>
+    <button class="tab" onclick="setTab('gantt')"><i class="ti ti-chart-gantt"></i> Gantt</button>
+    <button class="tab" onclick="setTab('entrada')"><i class="ti ti-clock"></i> Atualizar horímetros</button>
+    <button class="tab" onclick="setTab('volume')"><i class="ti ti-droplet"></i> Volume de óleo</button>
+    <button class="tab" onclick="setTab('config')"><i class="ti ti-settings"></i> Configurações</button>
+  </div>
+
+  <div id="tab-schedule">
+    <div class="search-row">
+      <input type="text" placeholder="Buscar máquina..." id="search-inp" oninput="renderSchedule()" />
+      <div class="filter-btns" id="filter-btns"></div>
+    </div>
+    <div id="schedule-body"></div>
+  </div>
+
+  <div id="tab-gantt" style="display:none">
+    <div class="legend">
+      <span><span class="leg-dot" style="background:#ef4444"></span>Urgente / vencido</span>
+      <span><span class="leg-dot" style="background:#f59e0b"></span>Alerta ≤ 30 dias</span>
+      <span><span class="leg-dot" style="background:#22c55e"></span>Dentro do prazo</span>
+      <span><span class="leg-dot" style="background:#818cf8"></span>ISO 220</span>
+      <span><span class="leg-dot" style="background:#38bdf8"></span>ISO VG 320</span>
+    </div>
+    <div class="gantt-wrap"><div style="min-width:640px" id="gantt-body"></div></div>
+  </div>
+
+  <div id="tab-entrada" style="display:none">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-clock"></i> Horímetros das máquinas</div>
+      <div class="card-sub">Informe o <strong>horímetro atual</strong> e o <strong>horímetro no momento da última troca de óleo</strong>. O sistema calcula automaticamente as horas trabalhadas (atual − última troca). Dados salvos automaticamente no navegador.</div>
+      <div class="entrada-grid" id="entrada-grid"></div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="applyEntrada()"><i class="ti ti-check"></i> Aplicar ao cronograma</button>
+        <button class="btn-sec" onclick="resetEntrada()"><i class="ti ti-refresh"></i> Resetar horímetros</button>
+        <div class="note-ok" id="applied-note"><i class="ti ti-circle-check"></i> Horímetros salvos! Cronograma atualizado.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-config" style="display:none">
+
+    <!-- GLOBAL CONFIG -->
+    <div class="config-section">
+      <div class="config-section-title"><i class="ti ti-adjustments"></i> Configurações globais</div>
+      <div class="config-section-sub">Estes valores se aplicam a todas as máquinas que não tiverem periodicidade personalizada.</div>
+
+      <div class="config-row">
+        <span class="config-label"><i class="ti ti-clock" style="font-size:13px"></i> Periodicidade padrão de troca (horas):</span>
+        <div class="config-input-wrap">
+          <input type="number" id="cfg-target" min="100" max="50000" step="100" value="5000" oninput="previewConfig()" />
+          <span class="unit">horas</span>
+        </div>
+      </div>
+
+      <div class="config-row">
+        <span class="config-label"><i class="ti ti-sun" style="font-size:13px"></i> Horas de trabalho por dia:</span>
+        <div class="config-input-wrap">
+          <input type="number" id="cfg-hpd" min="1" max="24" step="0.5" value="22" oninput="previewConfig()" />
+          <span class="unit">h/dia</span>
+        </div>
+      </div>
+
+      <div id="cfg-preview" class="config-preview" style="margin-top:4px">
+        <i class="ti ti-check"></i> <span id="cfg-preview-txt">5.000h ÷ 22h/dia = 227 dias até a troca</span>
+      </div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn-primary" onclick="applyConfig()"><i class="ti ti-check"></i> Aplicar configurações</button>
+        <div class="note-ok" id="cfg-note"><i class="ti ti-circle-check"></i> Configurações salvas!</div>
+      </div>
+    </div>
+
+    <!-- PER-MACHINE PERIODICIDADE -->
+    <div class="config-section">
+      <div class="config-section-title"><i class="ti ti-list-details"></i> Periodicidade por máquina</div>
+      <div class="config-section-sub">Deixe em branco para usar o padrão global. Preencha apenas as máquinas que tiverem periodicidade diferente.</div>
+      <div class="per-grid" id="per-grid"></div>
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn-primary" onclick="applyPeriodicidades()"><i class="ti ti-check"></i> Salvar periodicidades</button>
+        <button class="btn-sec" onclick="resetPeriodicidades()"><i class="ti ti-refresh"></i> Limpar personalizações</button>
+        <div class="note-ok" id="per-note"><i class="ti ti-circle-check"></i> Periodicidades salvas!</div>
+      </div>
+    </div>
+
+    <!-- MODELO POR MÁQUINA -->
+    <div class="config-section">
+      <div class="config-section-title"><i class="ti ti-tools"></i> Modelo do redutor por máquina</div>
+      <div class="config-section-sub">
+        Personalize o modelo do redutor de cada máquina. Máquinas com <strong>duplo redutor</strong> permitem modelos diferentes para cada um.
+        Muito útil para a filial <strong>GG RIO</strong> e qualquer máquina que precise de ajuste.
+      </div>
+      <div class="mod-grid" id="mod-grid"></div>
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn-primary" onclick="applyModelos()"><i class="ti ti-check"></i> Salvar modelos</button>
+        <button class="btn-sec" onclick="resetModelos()"><i class="ti ti-refresh"></i> Restaurar originais</button>
+        <div class="note-ok" id="mod-note"><i class="ti ti-circle-check"></i> Modelos salvos!</div>
+      </div>
+    </div>
+
+    <!-- TIPO DE ÓLEO POR MÁQUINA -->
+    <div class="config-section">
+      <div class="config-section-title"><i class="ti ti-droplet"></i> Tipo de óleo por máquina</div>
+      <div class="config-section-sub">
+        Altere o tipo de óleo de qualquer máquina. Máquinas com <strong>duplo redutor</strong> permitem tipos diferentes para cada redutor.
+        Deixe no padrão para manter o tipo original da planilha.
+      </div>
+      <div class="oil-type-grid" id="oil-type-grid"></div>
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn-primary" onclick="applyTiposOleo()"><i class="ti ti-check"></i> Salvar tipos de óleo</button>
+        <button class="btn-sec" onclick="resetTiposOleo()"><i class="ti ti-refresh"></i> Restaurar originais</button>
+        <div class="note-ok" id="oil-note"><i class="ti ti-circle-check"></i> Tipos de óleo salvos!</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-volume" style="display:none">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-droplet"></i> Volume de óleo por máquina</div>
+      <div class="card-sub">Informe o volume em litros para cada redutor, separado por tipo de óleo. Dados salvos automaticamente.</div>
+
+      <div class="entrada-grid" id="vol-grid-all" style="margin-bottom:1.25rem"></div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="applyVolume()"><i class="ti ti-check"></i> Salvar volumes</button>
+        <button class="btn-sec" onclick="resetVolume()"><i class="ti ti-refresh"></i> Limpar volumes</button>
+        <div class="note-ok" id="vol-note"><i class="ti ti-circle-check"></i> Volumes salvos!</div>
+      </div>
+    </div>
+
+    <div class="vol-summary" id="vol-summary"></div>
+
+    <div class="vol-table-wrap">
+      <table><thead><tr>
+        <th>Máquina</th><th>Modelo</th><th>Tipo de óleo</th><th>Config.</th>
+        <th>Red. 1 (L)</th><th>Red. 2 (L)</th><th>Total (L)</th><th>Status</th><th>Próxima troca</th>
+      </tr></thead><tbody id="vol-tbody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY="manut_redutores_v6";
+const GAS_URL="https://script.google.com/macros/s/AKfycbzXXV0UONsyINJX1A_P2ZEm3r5ChxIHLiufi2b4BKn2LQhwuvV2BK9_MRP1Gyk01Jiu/exec";
+const TODAY=new Date("2026-05-19");
+let TARGET=5000,HPD=22; // overridden by config on load
+const MONTHS=["05/2026","06/2026","07/2026","08/2026","09/2026","10/2026","11/2026","12/2026"];
+const MNAMES={"05/2026":"Maio 2026","06/2026":"Junho 2026","07/2026":"Julho 2026","08/2026":"Agosto 2026","09/2026":"Setembro 2026","10/2026":"Outubro 2026","11/2026":"Novembro 2026","12/2026":"Dezembro 2026"};
+
+const FILIAIS={
+  "GG MATRIZ":[
+    {id:"SOP-020",isDual:false,modelo:"H14224P510000.06",tipo:"ISO VG 320",horas:4169},
+    {id:"SOP-029",isDual:false,modelo:"H14224P510000.06",tipo:"ISO VG 320",horas:3730},
+    {id:"SOP-031",isDual:false,modelo:"H14224P510000.06",tipo:"ISO VG 320",horas:3252},
+    {id:"SOP-034",isDual:false,modelo:"H14224P510000.06",tipo:"ISO VG 320",horas:3538},
+    {id:"SOP-036",isDual:false,modelo:"H17224P510000.06",tipo:"ISO VG 320",horas:3247},
+    {id:"SOP-037",isDual:false,modelo:"H23228P510000.01",tipo:"ISO VG 320",horas:4767},
+    {id:"SOP-038",isDual:false,modelo:"H23228P510000.01",tipo:"ISO VG 320",horas:3481},
+    {id:"SOP-039",isDual:true, modelo:"H23228B520L00",   tipo:"ISO VG 320",horas:6730},
+    {id:"SOP-042",isDual:false,modelo:"H27228P510000.01",tipo:"ISO VG 320",horas:2128},
+    {id:"SOP-043",isDual:false,modelo:"H27228P510000.01",tipo:"ISO VG 320",horas:3983},
+    {id:"SOP-045",isDual:false,modelo:"GH90",            tipo:"ISO 220",   horas:2904},
+    {id:"SOP-046",isDual:true, modelo:"H23228B520L00",   tipo:"ISO VG 320",horas:5207},
+    {id:"SOP-048",isDual:false,modelo:"H14224P510000.10",tipo:"ISO VG 320",horas:4091},
+    {id:"SOP-050",isDual:true, modelo:"H23228B520L00",   tipo:"ISO VG 320",horas:4454},
+    {id:"SOP-051",isDual:true, modelo:"H23228B520L00",   tipo:"ISO VG 320",horas:4625},
+    {id:"SOP-052",isDual:true, modelo:"H23228B520L00",   tipo:"ISO VG 320",horas:3177},
+    {id:"SOP-053",isDual:true, modelo:"MRGH90",          tipo:"ISO 220",   horas:3375},
+    {id:"SOP-059",isDual:false,modelo:"MRGH90",          tipo:"ISO 220",   horas:2881},
+    {id:"SOP-060",isDual:false,modelo:"MRGH90",          tipo:"ISO 220",   horas:2515},
+    {id:"SOP-061",isDual:false,modelo:"MRGH90",          tipo:"ISO 220",   horas:3678},
+    {id:"SOP-062",isDual:false,modelo:"MRGH90",          tipo:"ISO 220",   horas:3502},
+    {id:"SOP-063",isDual:false,modelo:"MRGH90",          tipo:"ISO 220",   horas:2620},
+    {id:"SOP-064",isDual:false,modelo:"MRGH90",          tipo:"ISO 220",   horas:1214},
+    {id:"SOP-065",isDual:false,modelo:"H23230B510R2R.02",tipo:"ISO VG 320",horas:2083},
+    {id:"SOP-066",isDual:false,modelo:"MRGH90",          tipo:"ISO 220",   horas:3844},
+    {id:"SOP-068",isDual:false,modelo:"MRGH140",         tipo:"ISO 220",   horas:5075},
+    {id:"SOP-069",isDual:false,modelo:"MRGH140",         tipo:"ISO 220",   horas:5450},
+    {id:"SOP-071",isDual:false,modelo:"MRGH70",          tipo:"ISO 220",   horas:3539},
+    {id:"SOP-072",isDual:false,modelo:"MRGH70",          tipo:"ISO 220",   horas:2069},
+    {id:"SOP-084",isDual:false,modelo:"H220/18",         tipo:"—",         horas:null},
+    {id:"SOP-085",isDual:false,modelo:"GH602",           tipo:"ISO 220",   horas:4603},
+    {id:"EXT-002",isDual:false,modelo:"E36225P590R00",   tipo:"ISO VG 320",horas:7120},
+  ],
+  "GG MINAS":[
+    {id:"SOP-041",isDual:true, modelo:"H23",   tipo:"ISO VG 320",horas:null},
+    {id:"SOP-047",isDual:true, modelo:"H23",   tipo:"ISO VG 320",horas:null},
+    {id:"SOP-049",isDual:false,modelo:"GH90",  tipo:"ISO 220",   horas:null},
+    {id:"SOP-054",isDual:false,modelo:"MRGH90",tipo:"ISO 220",   horas:null},
+    {id:"SOP-055",isDual:true, modelo:"MRGH90",tipo:"ISO 220",   horas:null},
+    {id:"SOP-056",isDual:true, modelo:"MRGH90",tipo:"ISO 220",   horas:null},
+    {id:"SOP-057",isDual:true, modelo:"MRGH90",tipo:"ISO 220",   horas:null},
+    {id:"SOP-058",isDual:false,modelo:"MRGH90",tipo:"ISO 220",   horas:null},
+    {id:"SOP-067",isDual:false,modelo:"MRGH90",tipo:"ISO 220",   horas:null},
+    {id:"SOP-070",isDual:false,modelo:"MRGH90",tipo:"ISO 220",   horas:null},
+    {id:"SOP-073",isDual:false,modelo:"GH140", tipo:"ISO 220",   horas:null},
+    {id:"SOP-074",isDual:false,modelo:"GH140", tipo:"ISO 220",   horas:null},
+    {id:"SOP-075",isDual:false,modelo:"GH140", tipo:"ISO 220",   horas:null},
+    {id:"SOP-076",isDual:false,modelo:"GH140", tipo:"ISO 220",   horas:null},
+    {id:"SOP-077",isDual:false,modelo:"GH140", tipo:"ISO 220",   horas:null},
+    {id:"SOP-079",isDual:false,modelo:"GH140", tipo:"ISO 220",   horas:null},
+    {id:"SOP-080",isDual:false,modelo:"GH140", tipo:"ISO 220",   horas:null},
+    {id:"SOP-081",isDual:false,modelo:"GH140", tipo:"ISO 220",   horas:null},
+    {id:"SOP-082",isDual:false,modelo:"GH140", tipo:"ISO 220",   horas:null},
+    {id:"SOP-086",isDual:false,modelo:"GH90",  tipo:"ISO 220",   horas:null},
+  ],
+  "GG RIO":[
+    {id:"SOP-021",isDual:false,modelo:"",tipo:"",horas:null},
+    {id:"SOP-033",isDual:false,modelo:"",tipo:"",horas:null},
+    {id:"SOP-035",isDual:false,modelo:"",tipo:"",horas:null},
+    {id:"SOP-044",isDual:true, modelo:"",tipo:"",horas:null},
+  ]
+};
+let filialAtiva="GG MATRIZ";
+function RAW(){ return FILIAIS[filialAtiva]; }
+
+function getModelo(item, redutor){
+  const ov=modelos[item.id];
+  if(ov){
+    if(item.isDual&&redutor===2&&ov.r2) return ov.r2;
+    if(ov.r1) return ov.r1;
+  }
+  return item.modelo||"—";
+}
+function getModelo1(item){ return getModelo(item,1); }
+function getModelo2(item){ return item.isDual?getModelo(item,2):null; }
+
+function getTipoOleo(item, redutor){
+  // redutor: 1 or 2 (only relevant for dual machines)
+  const ov=tiposOleo[item.id];
+  if(ov){
+    if(item.isDual&&redutor===2&&ov.r2) return ov.r2;
+    if(ov.r1) return ov.r1;
+  }
+  return item.tipo; // fallback to RAW
+}
+function getTipoPrimario(item){
+  // for single machines or primary redutor of dual
+  const t=getTipoOleo(item,1);
+  return (t&&t!=="—"&&t!=="")?t:"—";
+}
+function tipoClass(t){ return t==="ISO 220"?"t220":t==="ISO VG 320"?"t320":"tna"; }
+function tipoVolClass(t){ return t==="ISO 220"?"v220":t==="ISO VG 320"?"v320":"na"; }
+function tipoInputClass(t){ return t==="ISO 220"?"vol-changed-220":t==="ISO VG 320"?"vol-changed-320":""; }
+
+// horimetros[id] = { atual: number, ultimaTroca: number }
+// trabalhado = atual - ultimaTroca  (se ambos informados)
+// se somente atual informado, usa como trabalhado direto (compatibilidade)
+let horimetros={}, pendingHor={}, filterStatus="ALL";
+let volumes={},pendingVols={};
+// config: global settings
+let config={target:5000,hpd:22};
+// periodicidades[id] = number of hours for that machine's interval (overrides global TARGET)
+let periodicidades={};
+// tiposOleo[id] = { r1: "ISO 220"|"ISO VG 320", r2: "ISO 220"|"ISO VG 320" } — overrides RAW.tipo
+let tiposOleo={};
+// modelos[id] = { r1: string, r2: string } — overrides RAW.modelo per-redutor
+let modelos={};
+
+// ── PERSISTÊNCIA ──
+function storageKey(filial){ return STORAGE_KEY+"_"+filial.replace(/\s+/g,"_"); }
+
+// ── CLOUD SAVE / LOAD ──
+async function saveToStorage(){
+  const payload={horimetros,volumes,periodicidades,tiposOleo,modelos,savedAt:new Date().toISOString()};
+  // Always save to localStorage as backup
+  try{
+    localStorage.setItem(storageKey(filialAtiva),JSON.stringify(payload));
+    localStorage.setItem(STORAGE_KEY+"_config",JSON.stringify(config));
+  }catch(e){}
+  // Save to cloud
+  setSaveStatus("unsaved","Salvando...");
+  try{
+    const res=await fetch(GAS_URL,{
+      method:"POST",
+      body:JSON.stringify({filial:filialAtiva,data:{...payload,config}})
+    });
+    const json=await res.json();
+    if(json.ok){
+      setSaveStatus("saved","Salvo na nuvem às "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}));
+    } else { setSaveStatus("unsaved","Erro ao salvar na nuvem"); }
+  }catch(e){
+    setSaveStatus("unsaved","Offline — salvo localmente");
+  }
+}
+
+function applyLocalData(data){
+  horimetros=data.horimetros||{};
+  volumes=data.volumes||{};
+  periodicidades=data.periodicidades||{};
+  tiposOleo=data.tiposOleo||{};
+  modelos=data.modelos||{};
+  if(data.config){config=data.config;TARGET=config.target||5000;HPD=config.hpd||22;}
+}
+
+function loadFilialData(filial){
+  try{
+    const raw=localStorage.getItem(storageKey(filial));
+    if(!raw)return;
+    applyLocalData(JSON.parse(raw));
+  }catch(e){ horimetros={}; volumes={}; periodicidades={}; tiposOleo={}; modelos={}; }
+}
+
+async function loadFromCloud(filial){
+  try{
+    const res=await fetch(GAS_URL+"?action=load&filial="+encodeURIComponent(filial));
+    const data=await res.json();
+    if(data&&Object.keys(data).length>0){
+      applyLocalData(data);
+      // also update localStorage cache
+      try{ localStorage.setItem(storageKey(filial),JSON.stringify(data)); }catch(e){}
+      const d=new Date(data.savedAt||Date.now());
+      setSaveStatus("saved","Atualizado: "+d.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}));
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+async function loadFromStorage(){
+  setSaveStatus("","Carregando...");
+  // Load config from localStorage first
+  try{
+    const cfgRaw=localStorage.getItem(STORAGE_KEY+"_config");
+    if(cfgRaw){ config=JSON.parse(cfgRaw); TARGET=config.target||5000; HPD=config.hpd||22; }
+  }catch(e){}
+  // Try cloud first, fallback to localStorage
+  const fromCloud=await loadFromCloud(filialAtiva);
+  if(!fromCloud){
+    loadFilialData(filialAtiva);
+    setSaveStatus("","Dados locais (sem conexão)");
+  }
+  rebuildAll();
+}
+function setSaveStatus(type,msg){
+  const el=document.getElementById("save-status"),lbl=document.getElementById("save-label");
+  el.className="save-status"+(type?" "+type:"");lbl.textContent=msg;
+}
+async function forceRefresh(){
+  setSaveStatus("","Atualizando...");
+  const ok=await loadFromCloud(filialAtiva);
+  if(ok){ rebuildAll(); }
+  else { setSaveStatus("unsaved","Sem conexão com a nuvem"); }
+}
+
+function exportJSON(){
+  const payload={filial:filialAtiva,horimetros,volumes,config,periodicidades,tiposOleo,modelos,exportedAt:new Date().toISOString(),version:6};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="backup_"+filialAtiva.replace(/\s+/g,"_")+"_"+new Date().toISOString().slice(0,10)+".json";
+  a.click();URL.revokeObjectURL(a.href);
+}
+function importJSON(evt){
+  const file=evt.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(data.filial&&data.filial!==filialAtiva){
+        if(!confirm("Este backup é da filial '"+data.filial+"'. Deseja trocar para essa filial e importar?"))return;
+        filialAtiva=data.filial; renderFilialSelector();
+      }
+      horimetros=data.horimetros||{};volumes=data.volumes||{};
+      if(data.config){config=data.config;TARGET=config.target||5000;HPD=config.hpd||22;}
+      if(data.periodicidades)periodicidades=data.periodicidades||{};
+      if(data.tiposOleo)tiposOleo=data.tiposOleo||{};
+      if(data.modelos)modelos=data.modelos||{};
+      saveToStorage();rebuildAll();alert("Backup importado com sucesso!");
+    }catch{alert("Arquivo inválido ou incompatível.");}
+  };
+  reader.readAsText(file);evt.target.value="";
+}
+
+// ── CÁLCULOS ──
+function getHorimetroAtual(item){
+  // retorna { trabalhado, atual, ultimaTroca, fonte }
+  const h=horimetros[item.id]||{};
+  const atual=h.atual!==undefined?parseFloat(h.atual):null;
+  const ultimaTroca=h.ultimaTroca!==undefined?parseFloat(h.ultimaTroca):null;
+  if(atual!==null&&!isNaN(atual)&&ultimaTroca!==null&&!isNaN(ultimaTroca)){
+    return{trabalhado:Math.max(0,atual-ultimaTroca),atual,ultimaTroca,fonte:"calculado"};
+  }
+  if(atual!==null&&!isNaN(atual)){
+    return{trabalhado:atual,atual,ultimaTroca:null,fonte:"direto"};
+  }
+  // fallback para dado original da planilha
+  if(item.horas!==null&&item.horas!==undefined){
+    return{trabalhado:item.horas,atual:null,ultimaTroca:null,fonte:"original"};
+  }
+  return{trabalhado:null,atual:null,ultimaTroca:null,fonte:"sem_dados"};
+}
+function compute(item){
+  const {trabalhado,atual,ultimaTroca,fonte}=getHorimetroAtual(item);
+  const horasN=trabalhado;
+  if(horasN===null||isNaN(horasN))return{...item,horasN:null,atual:null,ultimaTroca:null,restantes:null,dias:null,dataTroca:null,mes:null,status:"SEM DADOS",fonte,tipo:getTipoPrimario(item)};
+  const machineTarget=periodicidades[item.id]||TARGET;
+  const rest=machineTarget-horasN;
+  const tipoEfetivoUrg=getTipoPrimario(item);
+  if(rest<=0)return{...item,horasN,atual,ultimaTroca,restantes:Math.abs(rest),dias:0,dataTroca:TODAY,mes:`${String(TODAY.getMonth()+1).padStart(2,"0")}/${TODAY.getFullYear()}`,status:"URGENTE",fonte,machineTarget,tipo:tipoEfetivoUrg};
+  const dias=rest/HPD,dt=new Date(TODAY);dt.setDate(dt.getDate()+Math.round(dias));
+  const tipoEfetivo=getTipoPrimario(item);
+  return{...item,horasN,atual,ultimaTroca,restantes:rest,dias,dataTroca:dt,mes:`${String(dt.getMonth()+1).padStart(2,"0")}/${dt.getFullYear()}`,status:dias<=30?"ALERTA":"OK",fonte,machineTarget,tipo:tipoEfetivo};
+}
+function getVolTotal(item){
+  const v=volumes[item.id];if(!v)return null;
+  return((parseFloat(v.v1)||0)+(item.isDual?(parseFloat(v.v2)||0):0))||null;
+}
+function fmtDate(dt){if(!dt)return"—";return dt.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric"});}
+function fmtD(d){if(d===null)return"—";if(d===0)return'<span style="color:#ef4444;font-weight:600">Vencido</span>';return Math.round(d)+"d";}
+function fmtVol(v){if(!v&&v!==0)return null;const n=parseFloat(v);return isNaN(n)||n===0?null:n.toFixed(1);}
+function rows(){return RAW().map(r=>compute(r));}
+function sorted(){
+  const ord={URGENTE:0,ALERTA:1,OK:2,"SEM DADOS":3};
+  return rows().sort((a,b)=>{
+    if(ord[a.status]!==ord[b.status])return ord[a.status]-ord[b.status];
+    if(a.dias===null)return 1;if(b.dias===null)return -1;return a.dias-b.dias;
+  });
+}
+
+function updateStats(){
+  const r=rows();
+  document.getElementById("st-urg").textContent=r.filter(x=>x.status==="URGENTE").length;
+  document.getElementById("st-ale").textContent=r.filter(x=>x.status==="ALERTA").length;
+  document.getElementById("st-ok").textContent=r.filter(x=>x.status==="OK").length;
+  document.getElementById("st-sem").textContent=r.filter(x=>x.status==="SEM DADOS").length;
+
+  const mesAtual=`${String(TODAY.getMonth()+1).padStart(2,"0")}/${TODAY.getFullYear()}`;
+  let t220mes=0,t320mes=0,t220tot=0,t320tot=0,any=false;
+  r.forEach(row=>{
+    const vt=getVolTotal(row);if(!vt)return;any=true;
+    if(row.tipo==="ISO 220"){t220tot+=vt;if(row.mes===mesAtual)t220mes+=vt;}
+    if(row.tipo==="ISO VG 320"){t320tot+=vt;if(row.mes===mesAtual)t320mes+=vt;}
+  });
+  const fmt=v=>any?(v>0?v.toFixed(1)+"L":"0L"):"—";
+  document.getElementById("st-220-mes").textContent=fmt(t220mes);
+  document.getElementById("st-320-mes").textContent=fmt(t320mes);
+  document.getElementById("st-220-tot").textContent=any?t220tot.toFixed(1)+"L":"—";
+  document.getElementById("st-320-tot").textContent=any?t320tot.toFixed(1)+"L":"—";
+}
+
+// ── TABS ──
+function setTab(t){
+  ["schedule","gantt","entrada","volume","config"].forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");
+  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",["schedule","gantt","entrada","volume","config"][i]===t));
+  if(t==="schedule")renderSchedule();
+  if(t==="gantt")renderGantt();
+  if(t==="volume")renderVolumeTab();
+  if(t==="config")renderConfigTab();
+}
+
+// ── ENTRADA ──
+function buildEntrada(){
+  document.getElementById("entrada-grid").innerHTML=RAW().map(item=>{
+    const h=horimetros[item.id]||{};
+    const ph=pendingHor[item.id]||{};
+    const valAtual=ph.atual!==undefined?ph.atual:(h.atual!==undefined?h.atual:"");
+    const valTroca=ph.ultimaTroca!==undefined?ph.ultimaTroca:(h.ultimaTroca!==undefined?h.ultimaTroca:"");
+    const chAtual=h.atual!==undefined;
+    const chTroca=h.ultimaTroca!==undefined;
+    const tc=tipoClass(item.tipo);
+    // calcula trabalhado para preview
+    let previewTrab="";
+    const a=parseFloat(valAtual),t=parseFloat(valTroca);
+    if(!isNaN(a)&&!isNaN(t)&&valAtual!==""&&valTroca!==""){
+      previewTrab=`<div style="font-size:10px;color:#22c55e;margin-top:4px;font-weight:500">Trabalhado: ${Math.max(0,a-t).toLocaleString("pt-BR")}h</div>`;
+    } else if(!isNaN(a)&&valAtual!==""){
+      previewTrab=`<div style="font-size:10px;color:#f59e0b;margin-top:4px">Informe também o horímetro da última troca</div>`;
+    }
+    return`<div class="ei">
+      <div class="ei-id">${item.id}${item.isDual?'<span class="dual-tag">2×</span>':''}</div>
+      <div class="ei-mod" title="${getModelo1(item)}">${getModelo1(item)||item.id}</div>
+      <div class="ei-tipo ${tc}">${item.tipo}</div>
+      <div class="hor-atual-label"><i class="ti ti-dashboard" style="font-size:11px"></i> Horímetro atual (acumulado):</div>
+      <input type="number" min="0" max="999999" step="1" placeholder="ex: 35862"
+        value="${valAtual}" id="hor-atual-${item.id}"
+        class="${chAtual&&valAtual?"changed-atual":""}"
+        oninput="markHorPending('${item.id}','atual',this.value)" style="margin-bottom:6px"/>
+      <div class="hor-troca-label"><i class="ti ti-oil" style="font-size:11px"></i> Horímetro na última troca de óleo:</div>
+      <input type="number" min="0" max="999999" step="1" placeholder="ex: 31693"
+        value="${valTroca}" id="hor-troca-${item.id}"
+        class="${chTroca&&valTroca?"changed-troca":""}"
+        oninput="markHorPending('${item.id}','ultimaTroca',this.value)" />
+      ${previewTrab}
+      <div class="ei-orig" style="margin-top:5px">Planilha: ${item.horas!==null?item.horas.toLocaleString("pt-BR")+"h trab.":"sem dados"}</div>
+    </div>`;
+  }).join("");
+}
+function markHorPending(id,key,val){
+  if(!pendingHor[id])pendingHor[id]={};
+  pendingHor[id][key]=val;
+  const inp=document.getElementById("hor-"+(key==="atual"?"atual":"troca")+"-"+id);
+  if(inp)inp.className=val?(key==="atual"?"changed-atual":"changed-troca"):"";
+  // atualiza preview trabalhado ao vivo
+  const ph=pendingHor[id]||{};
+  const h=horimetros[id]||{};
+  const a=parseFloat(ph.atual!==undefined?ph.atual:(h.atual||""));
+  const t=parseFloat(ph.ultimaTroca!==undefined?ph.ultimaTroca:(h.ultimaTroca||""));
+  const card=inp.closest(".ei");
+  let prev=card.querySelector(".hor-preview");
+  if(!prev){prev=document.createElement("div");prev.className="hor-preview";card.insertBefore(prev,card.querySelector(".ei-orig"));}
+  if(!isNaN(a)&&!isNaN(t)&&ph.atual!==""&&(ph.ultimaTroca!==undefined||h.ultimaTroca!==undefined)){
+    prev.style.cssText="font-size:10px;color:#22c55e;margin-top:4px;font-weight:500";
+    prev.textContent="Trabalhado: "+Math.max(0,a-t).toLocaleString("pt-BR")+"h";
+  } else if(!isNaN(a)){
+    prev.style.cssText="font-size:10px;color:#f59e0b;margin-top:4px";
+    prev.textContent="Informe também o horímetro da última troca";
+  } else { prev.textContent=""; }
+}
+function applyEntrada(){
+  Object.entries(pendingHor).forEach(([id,obj])=>{
+    if(!horimetros[id])horimetros[id]={};
+    ["atual","ultimaTroca"].forEach(k=>{
+      if(obj[k]!==undefined){
+        if(obj[k]===""){delete horimetros[id][k];}
+        else{const n=parseFloat(obj[k]);if(!isNaN(n))horimetros[id][k]=n;}
+      }
+    });
+    if(!Object.keys(horimetros[id]).length)delete horimetros[id];
+  });
+  pendingHor={};saveToStorage();buildEntrada();updateStats();
+  const note=document.getElementById("applied-note");
+  note.style.display="inline-flex";setTimeout(()=>note.style.display="none",2500);
+}
+function resetEntrada(){
+  if(!confirm("Resetar todos os horímetros?"))return;
+  horimetros={};pendingHor={};saveToStorage();buildEntrada();updateStats();
+}
+
+// ── FILTROS ──
+function buildFilters(){
+  const wrap=document.getElementById("filter-btns");wrap.innerHTML="";
+  ["ALL","URGENTE","ALERTA","OK","SEM DADOS"].forEach(f=>{
+    const b=document.createElement("button");b.className="fbtn"+(filterStatus===f?" active":"");
+    b.textContent=f;b.onclick=()=>{filterStatus=f;buildFilters();renderSchedule();};wrap.appendChild(b);
+  });
+}
+
+// ── CRONOGRAMA ──
+function renderSchedule(){
+  const q=document.getElementById("search-inp").value.toLowerCase();
+  const data=sorted().filter(r=>{
+    if(filterStatus!=="ALL"&&r.status!==filterStatus)return false;
+    if(q&&!r.id.toLowerCase().includes(q))return false;return true;
+  });
+  const byM={};data.forEach(r=>{const k=r.mes||"SEM DATA";if(!byM[k])byM[k]=[];byM[k].push(r);});
+  const mkeys=Object.keys(byM).sort((a,b)=>{
+    if(a==="SEM DATA")return 1;if(b==="SEM DATA")return -1;
+    const[am,ay]=a.split("/").map(Number),[bm,by]=b.split("/").map(Number);return ay!==by?ay-by:am-bm;
+  });
+  let html="";
+  mkeys.forEach(mes=>{
+    const items=byM[mes],hasUrg=items.some(r=>r.status==="URGENTE"),hasDual=items.some(r=>r.isDual);
+    const lbl=mes==="SEM DATA"?"Sem data prevista":(MNAMES[mes]||mes);
+    let mes220=0,mes320=0;
+    items.forEach(r=>{
+      const vt=getVolTotal(r);if(!vt)return;
+      if(r.tipo==="ISO 220")mes220+=vt;
+      if(r.tipo==="ISO VG 320")mes320+=vt;
+    });
+    const volTags=(mes220>0?`<span class="vol-badge v220" style="font-size:10px"><i class="ti ti-droplet" style="font-size:10px"></i> 220: ${mes220.toFixed(1)}L</span>`:"")
+                +(mes320>0?`<span class="vol-badge v320" style="font-size:10px"><i class="ti ti-droplet" style="font-size:10px"></i> 320: ${mes320.toFixed(1)}L</span>`:"");
+    html+=`<div class="month-hdr${hasUrg?" urg":""}">
+      <i class="ti ti-calendar"></i>
+      <span class="mlbl">${lbl}</span>
+      <span class="msub">${items.length} redutor${items.length>1?"es":""}</span>
+      ${hasDual?'<span class="dual-tag">★ dupla</span>':''}
+      ${volTags?`<span style="margin-left:auto;display:flex;gap:6px">${volTags}</span>`:''}
+    </div>
+    <table><thead><tr>
+      <th>Máquina</th><th>Tipo de óleo</th><th>Horímetro / Trabalhado</th><th>Restam</th><th>Dias</th><th>Data prevista</th><th>Volume</th><th>Status</th>
+    </tr></thead><tbody>`;
+    items.forEach(r=>{
+      const pct=r.horasN!==null?Math.min(100,(r.horasN/(r.machineTarget||TARGET))*100):0;
+      const mt=r.machineTarget||TARGET;const bc=r.horasN>=mt?"#ef4444":r.horasN>=(mt*0.9)?"#f59e0b":"#22c55e";
+      const changed=horimetros[r.id]!==undefined&&(horimetros[r.id].atual!==undefined||horimetros[r.id].ultimaTroca!==undefined);
+      const pc=r.status==="URGENTE"?"urg":r.status==="ALERTA"?"ale":r.status==="OK"?"ok":"sem";
+      const pl=r.status==="URGENTE"?"Urgente":r.status==="ALERTA"?"Alerta":r.status==="OK"?"OK":"Sem dados";
+      const vt=getVolTotal(r);
+      const vc=tipoVolClass(r.tipo);
+      html+=`<tr>
+        <td><span class="maq-id">${r.id}</span>${r.isDual?'<span class="dual-tag" style="margin-left:5px">2×</span>':''}${changed?'<span class="changed-tag"><i class="ti ti-edit" style="font-size:10px"></i></span>':''}<br><span style="font-size:11px;color:#334155">${getModelo1(r)}</span></td>
+        <td><span style="font-size:12px;font-weight:500" class="${tipoClass(r.tipo)==="t220"?"":""}${r.tipo==="ISO 220"?"color:#818cf8":r.tipo==="ISO VG 320"?"color:#38bdf8":"color:#475569"}">${r.tipo}</span></td>
+        <td>
+          ${r.horasN!==null?`<span style="font-weight:500">${r.horasN.toLocaleString("pt-BR")}h trab.</span>`:"—"}
+          ${r.atual!==null?`<div style="font-size:10px;color:#334155;margin-top:1px">Hor. atual: ${r.atual.toLocaleString("pt-BR")}h</div>`:""}
+          ${r.ultimaTroca!==null?`<div style="font-size:10px;color:#334155">Última troca: ${r.ultimaTroca.toLocaleString("pt-BR")}h</div>`:""}
+          <div class="prog-bg"><div class="prog-fill" style="width:${pct}%;background:${bc}"></div></div>
+        </td>
+        <td style="font-size:12px">${r.status==="URGENTE"?`<span style="color:#ef4444;font-weight:600">+${Math.round(r.restantes)}h</span>`:r.restantes!==null?Math.round(r.restantes)+"h":"—"}</td>
+        <td style="font-size:12px">${fmtD(r.dias)}</td>
+        <td style="font-size:12px;color:#94a3b8">${fmtDate(r.dataTroca)}</td>
+        <td>${vt?`<span class="vol-badge ${vc}"><i class="ti ti-droplet" style="font-size:10px"></i> ${vt.toFixed(1)} L</span>`:'<span class="vol-badge na">—</span>'}</td>
+        <td><span class="pill ${pc}">${pl}</span>${r.isDual&&r.status!=="SEM DADOS"?'<div style="font-size:10px;color:#f59e0b;margin-top:3px">Trocar 2 redutores</div>':''}</td>
+      </tr>`;
+    });
+    html+=`</tbody></table>`;
+  });
+  document.getElementById("schedule-body").innerHTML=html||'<div style="color:#334155;padding:1rem 0;font-size:13px">Nenhum resultado encontrado.</div>';
+}
+
+// ── GANTT ──
+function renderGantt(){
+  const data=sorted();
+  const maxDays=Math.max(...data.filter(r=>r.dias!==null).map(r=>r.dias),1);
+  let html=`<div class="g-ruler">`;
+  MONTHS.forEach(m=>{
+    const[mm,yy]=m.split("/"),d=new Date(parseInt(yy),parseInt(mm)-1,1);
+    html+=`<div class="g-ruler-cell">${d.toLocaleDateString("pt-BR",{month:"short"}).replace(".","").toUpperCase()}</div>`;
+  });
+  html+=`</div>`;
+  data.forEach(r=>{
+    const bc=r.status==="URGENTE"?"#ef4444":r.status==="ALERTA"?"#f59e0b":"#22c55e";
+    const pct=r.dias!==null&&r.dias>0?Math.min(97,(r.dias/(maxDays*1.05))*100):r.status==="URGENTE"?0:100;
+    const vt=getVolTotal(r);
+    const vc=tipoVolClass(r.tipo);
+    const volTag=vt?`<span class="vol-badge ${vc}" style="font-size:9px;padding:1px 5px">${vt.toFixed(1)}L</span>`:'';
+    html+=`<div class="g-row">
+      <div class="g-label">${r.id}${r.isDual?'<span style="font-size:9px;color:#fbbf24;background:#292524;padding:1px 3px;border-radius:3px;border:1px solid #44403c">2×</span>':''}${volTag}</div>
+      <div class="g-bar">
+        ${MONTHS.map((_,i)=>`<div class="g-gl" style="left:${(i/MONTHS.length)*100}%"></div>`).join("")}
+        ${r.status==="URGENTE"?`<div class="g-ov"><span>Vencido — ${r.horasN?.toLocaleString("pt-BR")}h</span></div>`
+        :r.status==="SEM DADOS"?`<div class="g-nd"><span>Dados indisponíveis</span></div>`
+        :`<div class="g-fill" style="width:${100-pct}%;background:${bc}22;border-right:2px solid ${bc}"></div>
+           <div class="g-pin" style="left:${pct}%;background:${bc}"><div class="g-pin-lbl">${fmtDate(r.dataTroca)}</div></div>`}
+      </div>
+      <div class="g-days">${r.dias===null?"—":r.dias===0?'<span style="color:#ef4444">Venc.</span>':Math.round(r.dias)+"d"}</div>
+    </div>`;
+  });
+  document.getElementById("gantt-body").innerHTML=html;
+}
+
+// ── VOLUME ──
+function buildVolumeGrid(){
+  const sorted_raw=[...RAW()].sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}));
+
+  function buildCard(item){
+    const v=volumes[item.id]||{};
+    const pv=pendingVols[item.id]||{};
+    const val1=pv.v1!==undefined?pv.v1:(v.v1!==undefined?v.v1:"");
+    const val2=pv.v2!==undefined?pv.v2:(v.v2!==undefined?v.v2:"");
+    const ch1=v.v1!==undefined;
+    const ch2=v.v2!==undefined;
+    const vt=getVolTotal(item);
+    const ic=tipoInputClass(item.tipo);
+    return`<div class="ei">
+      <div class="ei-id">${item.id}${item.isDual?'<span class="dual-tag">2×</span>':''}</div>
+      <div class="ei-mod" title="${getModelo1(item)}">${getModelo1(item)||item.id}</div>
+      ${item.isDual?`
+        <div style="font-size:10px;color:#475569;margin-bottom:3px">Redutor 1 (L):</div>
+        <input type="number" min="0" max="1000" step="0.1" placeholder="0.0"
+          value="${val1}" id="vol1-${item.id}" class="${ch1&&val1?ic:''}"
+          oninput="markVolPending('${item.id}','v1',this.value)" style="margin-bottom:6px"/>
+        <div style="font-size:10px;color:#475569;margin-bottom:3px">Redutor 2 (L):</div>
+        <input type="number" min="0" max="1000" step="0.1" placeholder="0.0"
+          value="${val2}" id="vol2-${item.id}" class="${ch2&&val2?ic:''}"
+          oninput="markVolPending('${item.id}','v2',this.value)" />
+      `:`
+        <div style="font-size:10px;color:#475569;margin-bottom:3px">Volume (L):</div>
+        <input type="number" min="0" max="1000" step="0.1" placeholder="0.0"
+          value="${val1}" id="vol1-${item.id}" class="${ch1&&val1?ic:''}"
+          oninput="markVolPending('${item.id}','v1',this.value)" />
+      `}
+      ${vt?`<div class="ei-saved" style="color:${item.tipo==="ISO 220"?"#818cf8":item.tipo==="ISO VG 320"?"#38bdf8":"#475569"}">Total: ${vt.toFixed(1)} L ✓</div>`:'<div class="ei-orig">não informado</div>'}
+    </div>`;
+  }
+
+  document.getElementById("vol-grid-all").innerHTML=sorted_raw.map(buildCard).join("");
+}
+
+function markVolPending(id,key,val){
+  if(!pendingVols[id])pendingVols[id]={};
+  pendingVols[id][key]=val;
+  const item=RAW().find(r=>r.id===id);
+  const inp=document.getElementById((key==="v1"?"vol1-":"vol2-")+id);
+  if(inp)inp.className=val?(item?tipoInputClass(item.tipo):""):"";
+}
+
+function applyVolume(){
+  Object.entries(pendingVols).forEach(([id,obj])=>{
+    if(!volumes[id])volumes[id]={};
+    if(obj.v1!==undefined){if(obj.v1===""){delete volumes[id].v1;}else{volumes[id].v1=parseFloat(obj.v1);}}
+    if(obj.v2!==undefined){if(obj.v2===""){delete volumes[id].v2;}else{volumes[id].v2=parseFloat(obj.v2);}}
+    if(!Object.keys(volumes[id]).length)delete volumes[id];
+  });
+  pendingVols={};saveToStorage();buildVolumeGrid();renderVolumeTable();updateStats();
+  const note=document.getElementById("vol-note");
+  note.style.display="inline-flex";setTimeout(()=>note.style.display="none",2500);
+}
+
+function resetVolume(){
+  if(!confirm("Limpar todos os volumes de óleo?"))return;
+  volumes={};pendingVols={};saveToStorage();buildVolumeGrid();renderVolumeTable();updateStats();
+}
+
+function renderVolumeTable(){
+  const data=sorted();
+  let tot220=0,tot320=0,totNA=0,com=0;
+  let html="";
+  data.forEach(r=>{
+    const v=volumes[r.id]||{};
+    const v1=fmtVol(v.v1),v2=r.isDual?fmtVol(v.v2):null;
+    const vt=getVolTotal(r);
+    if(vt){com++;if(r.tipo==="ISO 220")tot220+=vt;else if(r.tipo==="ISO VG 320")tot320+=vt;else totNA+=vt;}
+    const pc=r.status==="URGENTE"?"urg":r.status==="ALERTA"?"ale":r.status==="OK"?"ok":"sem";
+    const pl=r.status==="URGENTE"?"Urgente":r.status==="ALERTA"?"Alerta":r.status==="OK"?"OK":"Sem dados";
+    const vc=tipoVolClass(r.tipo);
+    const tipoColor=r.tipo==="ISO 220"?"#818cf8":r.tipo==="ISO VG 320"?"#38bdf8":"#475569";
+    const tipo2=getTipoOleo(r,2);
+    const tipo2Color=tipo2==="ISO 220"?"#818cf8":tipo2==="ISO VG 320"?"#38bdf8":"#475569";
+    html+=`<tr>
+      <td><span class="maq-id">${r.id}</span>${r.isDual?'<span class="dual-tag" style="margin-left:5px">2×</span>':''}</td>
+      <td style="font-size:11px;color:#334155">${r.isDual?`${getModelo(r,1)} / ${getModelo(r,2)}`:`${getModelo1(r)}`}</td>
+      <td style="font-size:12px;font-weight:500">${r.isDual?`<span style="color:${tipoColor}">${r.tipo}</span> <span style="font-size:10px;color:#475569">R1</span><br><span style="color:${tipo2Color}">${tipo2}</span> <span style="font-size:10px;color:#475569">R2</span>`:`<span style="color:${tipoColor}">${r.tipo}</span>`}</td>
+      <td style="font-size:12px;color:#475569">${r.isDual?'Duplo':'Simples'}</td>
+      <td style="text-align:center">${v1?`<span class="vol-badge ${vc}">${v1} L</span>`:'<span class="vol-badge na">—</span>'}</td>
+      <td style="text-align:center">${r.isDual?(v2?`<span class="vol-badge ${tipoVolClass(tipo2)}">${v2} L</span>`:'<span class="vol-badge na">—</span>'):'<span style="color:#1e293b;font-size:12px">N/A</span>'}</td>
+      <td style="text-align:center">${vt?`<span class="vol-badge ${vc}" style="font-size:12px">${vt.toFixed(1)} L</span>`:'<span class="vol-badge na">—</span>'}</td>
+      <td><span class="pill ${pc}">${pl}</span></td>
+      <td style="font-size:12px;color:#94a3b8">${fmtDate(r.dataTroca)}</td>
+    </tr>`;
+  });
+  document.getElementById("vol-tbody").innerHTML=html;
+
+  const anyVol=com>0;
+  document.getElementById("vol-summary").innerHTML=`
+    <div class="vol-sum-card v220">
+      <div class="vs-label"><i class="ti ti-droplet"></i> ISO 220 — Total geral</div>
+      <div class="vs-val">${anyVol?tot220.toFixed(1)+" L":"—"}</div>
+      <div class="vs-sub">${RAW().filter(r=>r.tipo==="ISO 220").length} redutores deste tipo</div>
+    </div>
+    <div class="vol-sum-card v320">
+      <div class="vs-label"><i class="ti ti-droplet"></i> ISO VG 320 — Total geral</div>
+      <div class="vs-val">${anyVol?tot320.toFixed(1)+" L":"—"}</div>
+      <div class="vs-sub">${RAW().filter(r=>r.tipo==="ISO VG 320").length} redutores deste tipo</div>
+    </div>
+    <div class="vol-sum-card vtot">
+      <div class="vs-label">Total combinado</div>
+      <div class="vs-val">${anyVol?(tot220+tot320+totNA).toFixed(1)+" L":"—"}</div>
+      <div class="vs-sub">${com} de ${RAW().length} com volume informado</div>
+    </div>
+    <div class="vol-sum-card vna">
+      <div class="vs-label">Sem volume informado</div>
+      <div class="vs-val" style="color:#475569">${RAW().length-com}</div>
+      <div class="vs-sub">máquinas pendentes</div>
+    </div>`;
+}
+
+function renderVolumeTab(){buildVolumeGrid();renderVolumeTable();}
+// ── CONFIGURAÇÕES ──
+function previewConfig(){
+  const t=parseFloat(document.getElementById("cfg-target").value)||TARGET;
+  const h=parseFloat(document.getElementById("cfg-hpd").value)||HPD;
+  const dias=Math.round(t/h);
+  document.getElementById("cfg-preview-txt").textContent=
+    `${t.toLocaleString("pt-BR")}h ÷ ${h}h/dia = ${dias} dias até a troca`;
+}
+function applyConfig(){
+  const t=parseFloat(document.getElementById("cfg-target").value);
+  const h=parseFloat(document.getElementById("cfg-hpd").value);
+  if(!isNaN(t)&&t>0)TARGET=t;
+  if(!isNaN(h)&&h>0)HPD=h;
+  config={target:TARGET,hpd:HPD};
+  saveToStorage();updateStats();renderSchedule();
+  const n=document.getElementById("cfg-note");
+  n.style.display="inline-flex";setTimeout(()=>n.style.display="none",2500);
+}
+
+let pendingPer={};
+function buildPerGrid(){
+  const sorted_raw=[...RAW()].sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}));
+  document.getElementById("per-grid").innerHTML=sorted_raw.map(item=>{
+    const cur=periodicidades[item.id];
+    const pp=pendingPer[item.id];
+    const val=pp!==undefined?pp:(cur!==undefined?cur:"");
+    const isCustom=cur!==undefined;
+    const tc=tipoClass(item.tipo);
+    return`<div class="per-card">
+      <div class="pc-id">${item.id}${item.isDual?'<span class="dual-tag">2×</span>':''}
+        ${isCustom?`<span style="font-size:9px;background:#1e1b4b;color:#818cf8;border:1px solid #312e81;padding:1px 6px;border-radius:99px">personalizado</span>`:''}
+      </div>
+      <div class="pc-mod" title="${getModelo1(item)}">${getModelo1(item)||item.id}</div>
+      <input type="number" min="100" max="99999" step="100" placeholder="${TARGET.toLocaleString("pt-BR")} (padrão)"
+        value="${val}" id="per-${item.id}"
+        class="${isCustom&&val?"per-custom":""}"
+        oninput="markPerPending('${item.id}',this.value)" />
+      <div class="pc-default">
+        Padrão global: ${TARGET.toLocaleString("pt-BR")}h
+        ${isCustom?`· Personalizado: ${cur.toLocaleString("pt-BR")}h`:''}
+      </div>
+    </div>`;
+  }).join("");
+}
+function markPerPending(id,val){
+  pendingPer[id]=val;
+  const inp=document.getElementById("per-"+id);
+  if(inp)inp.className=val?"per-custom":"";
+}
+function applyPeriodicidades(){
+  Object.entries(pendingPer).forEach(([id,val])=>{
+    if(val===""){delete periodicidades[id];}
+    else{const n=parseFloat(val);if(!isNaN(n)&&n>0)periodicidades[id]=n;}
+  });
+  pendingPer={};saveToStorage();buildPerGrid();updateStats();renderSchedule();
+  const n=document.getElementById("per-note");
+  n.style.display="inline-flex";setTimeout(()=>n.style.display="none",2500);
+}
+function resetPeriodicidades(){
+  if(!confirm("Limpar todas as periodicidades personalizadas?"))return;
+  periodicidades={};pendingPer={};saveToStorage();buildPerGrid();updateStats();renderSchedule();
+}
+function renderConfigTab(){
+  document.getElementById("cfg-target").value=TARGET;
+  document.getElementById("cfg-hpd").value=HPD;
+  previewConfig();
+  buildPerGrid();
+  buildModGrid();
+  buildOilTypeGrid();
+}
+
+// ── MODELOS ──
+let pendingMod={};
+function buildModGrid(){
+  const sorted_raw=[...RAW()].sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}));
+  document.getElementById("mod-grid").innerHTML=sorted_raw.map(item=>{
+    const ov=modelos[item.id]||{};
+    const pm=pendingMod[item.id]||{};
+    const val1=pm.r1!==undefined?pm.r1:(ov.r1!==undefined?ov.r1:"");
+    const val2=pm.r2!==undefined?pm.r2:(ov.r2!==undefined?ov.r2:"");
+    const ch1=ov.r1!==undefined;
+    const ch2=ov.r2!==undefined;
+    const effective1=getModelo(item,1);
+    const effective2=item.isDual?getModelo(item,2):null;
+    return`<div class="mod-card">
+      <div class="mc-id">${item.id}${item.isDual?'<span class="dual-tag">2×</span>':''}
+        ${ch1||ch2?'<span style="font-size:9px;background:#1c1200;color:#f59e0b;border:1px solid #78350f;padding:1px 6px;border-radius:99px">personalizado</span>':''}
+      </div>
+      ${item.isDual?`
+        <div class="mc-lbl">Redutor 1:</div>
+        <input type="text" placeholder="${item.modelo||'ex: MRGH90'}"
+          value="${val1}" id="mod1-${item.id}"
+          class="${ch1&&val1?'mod-custom':''}"
+          oninput="markModPending('${item.id}','r1',this.value)" style="margin-bottom:6px"/>
+        <div class="mc-lbl">Redutor 2:</div>
+        <input type="text" placeholder="${item.modelo||'ex: MRGH90'}"
+          value="${val2}" id="mod2-${item.id}"
+          class="${ch2&&val2?'mod-custom':''}"
+          oninput="markModPending('${item.id}','r2',this.value)"/>
+      `:`
+        <div class="mc-lbl">Modelo:</div>
+        <input type="text" placeholder="${item.modelo||'ex: MRGH90'}"
+          value="${val1}" id="mod1-${item.id}"
+          class="${ch1&&val1?'mod-custom':''}"
+          oninput="markModPending('${item.id}','r1',this.value)"/>
+      `}
+      ${ch1||ch2
+        ?`<div class="mod-saved">✓ ${item.isDual?`R1: ${effective1}  R2: ${effective2}`:effective1}</div>`
+        :`<div class="mc-orig">Original: ${item.modelo||'não definido'}</div>`}
+    </div>`;
+  }).join("");
+}
+function markModPending(id,key,val){
+  if(!pendingMod[id])pendingMod[id]={};
+  pendingMod[id][key]=val;
+  const inp=document.getElementById((key==="r1"?"mod1-":"mod2-")+id);
+  if(inp)inp.className=val?"mod-custom":"";
+}
+function applyModelos(){
+  Object.entries(pendingMod).forEach(([id,obj])=>{
+    if(!modelos[id])modelos[id]={};
+    ["r1","r2"].forEach(k=>{
+      if(obj[k]!==undefined){
+        if(obj[k]===""){delete modelos[id][k];}
+        else{modelos[id][k]=obj[k].trim();}
+      }
+    });
+    if(!Object.keys(modelos[id]).length)delete modelos[id];
+  });
+  pendingMod={};saveToStorage();buildModGrid();
+  // refresh other views that show modelo
+  if(document.getElementById("tab-schedule").style.display!=="none")renderSchedule();
+  if(document.getElementById("tab-volume").style.display!=="none")renderVolumeTab();
+  buildEntrada();
+  const n=document.getElementById("mod-note");
+  n.style.display="inline-flex";setTimeout(()=>n.style.display="none",2500);
+}
+function resetModelos(){
+  if(!confirm("Restaurar todos os modelos para os valores originais?"))return;
+  modelos={};pendingMod={};saveToStorage();buildModGrid();buildEntrada();
+  if(document.getElementById("tab-schedule").style.display!=="none")renderSchedule();
+}
+
+// ── TIPO DE ÓLEO ──
+let pendingOil={};
+function buildOilTypeGrid(){
+  const sorted_raw=[...RAW()].sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}));
+  const OPTS=['ISO 220','ISO VG 320'];
+  document.getElementById("oil-type-grid").innerHTML=sorted_raw.map(item=>{
+    const ov=tiposOleo[item.id]||{};
+    const pov=pendingOil[item.id]||{};
+    const cur1=pov.r1!==undefined?pov.r1:(ov.r1||item.tipo);
+    const cur2=pov.r2!==undefined?pov.r2:(ov.r2||(item.isDual?item.tipo:""));
+    const isCustom1=ov.r1!==undefined&&ov.r1!==item.tipo;
+    const isCustom2=item.isDual&&ov.r2!==undefined&&ov.r2!==item.tipo;
+    function optHtml(val){ return OPTS.map(o=>`<option value="${o}"${val===o?" selected":""}>${o}</option>`).join(""); }
+    function selClass(v){ return v==="ISO 220"?"sel-220":v==="ISO VG 320"?"sel-320":""; }
+    return`<div class="ot-card">
+      <div class="ot-id">${item.id}${item.isDual?'<span class="dual-tag">2×</span>':''}
+        ${(isCustom1||isCustom2)?'<span style="font-size:9px;background:#052e16;color:#22c55e;border:1px solid #14532d;padding:1px 6px;border-radius:99px">alterado</span>':''}
+      </div>
+      <div class="ot-mod" title="${getModelo1(item)}">${getModelo1(item)||item.id}</div>
+      ${item.isDual?`
+        <div class="ot-lbl">Redutor 1:</div>
+        <select id="oil1-${item.id}" class="${selClass(cur1)}" onchange="markOilPending('${item.id}','r1',this.value)">
+          ${optHtml(cur1)}
+        </select>
+        <div class="ot-lbl" style="margin-top:6px">Redutor 2:</div>
+        <select id="oil2-${item.id}" class="${selClass(cur2)}" onchange="markOilPending('${item.id}','r2',this.value)">
+          ${optHtml(cur2)}
+        </select>
+      `:`
+        <div class="ot-lbl">Tipo de óleo:</div>
+        <select id="oil1-${item.id}" class="${selClass(cur1)}" onchange="markOilPending('${item.id}','r1',this.value)">
+          ${optHtml(cur1)}
+        </select>
+      `}
+      ${isCustom1||isCustom2
+        ? `<div class="ot-changed">✓ Alterado (original: ${item.tipo})</div>`
+        : `<div class="ot-orig">Original: ${item.tipo}</div>`
+      }
+    </div>`;
+  }).join("");
+}
+function markOilPending(id,key,val){
+  if(!pendingOil[id])pendingOil[id]={};
+  pendingOil[id][key]=val;
+  const item=RAW().find(r=>r.id===id);
+  const sel=document.getElementById((key==="r1"?"oil1-":"oil2-")+id);
+  if(sel)sel.className=val==="ISO 220"?"sel-220":val==="ISO VG 320"?"sel-320":"";
+}
+function applyTiposOleo(){
+  Object.entries(pendingOil).forEach(([id,obj])=>{
+    if(!tiposOleo[id])tiposOleo[id]={};
+    const item=RAW().find(r=>r.id===id);
+    ["r1","r2"].forEach(k=>{
+      if(obj[k]!==undefined){
+        // if same as original, remove override
+        if(obj[k]===item.tipo&&k==="r1"&&!item.isDual){delete tiposOleo[id][k];}
+        else{tiposOleo[id][k]=obj[k];}
+      }
+    });
+    if(!Object.keys(tiposOleo[id]).length)delete tiposOleo[id];
+  });
+  pendingOil={};saveToStorage();buildOilTypeGrid();updateStats();renderSchedule();
+  if(document.getElementById("tab-volume").style.display!=="none")renderVolumeTab();
+  const n=document.getElementById("oil-note");
+  n.style.display="inline-flex";setTimeout(()=>n.style.display="none",2500);
+}
+function resetTiposOleo(){
+  if(!confirm("Restaurar todos os tipos de óleo para os valores originais da planilha?"))return;
+  tiposOleo={};pendingOil={};saveToStorage();buildOilTypeGrid();updateStats();renderSchedule();
+}
+
+// ── FILIAL ──
+function filialClass(f){ return f==="GG MATRIZ"?"matriz":f==="GG MINAS"?"minas":"rio"; }
+function renderFilialSelector(){
+  Object.keys(FILIAIS).forEach(f=>{
+    const btn=document.getElementById("fbtn-"+f);
+    const badge=document.getElementById("fbadge-"+f);
+    if(btn) btn.className="filial-btn"+(f===filialAtiva?" active":"")+" "+filialClass(f);
+    if(badge) badge.textContent=FILIAIS[f].length;
+  });
+  const si=document.getElementById("filial-indicator");
+  if(si) si.textContent=filialAtiva;
+}
+function switchFilial(filial){
+  if(filial===filialAtiva)return;
+  // Save current filial before switching
+  saveToStorage();
+  // Switch
+  filialAtiva=filial;
+  // Reset active-filial state
+  horimetros={};volumes={};periodicidades={};tiposOleo={};modelos={};
+  // Load data for new filial — try cloud first
+  setSaveStatus("","Carregando "+filial+"...");
+  loadFromCloud(filial).then(ok=>{
+    if(!ok) loadFilialData(filial);
+    rebuildAll();
+    setSaveStatus("saved","Filial: "+filial);
+  });
+  // Update UI immediately
+  renderFilialSelector();
+  // Rebuild all
+  rebuildAll();
+  // Reset to schedule tab
+  setTab('schedule');
+  setSaveStatus("saved","Filial alterada para "+filial);
+}
+
+function rebuildAll(){renderFilialSelector();buildEntrada();buildVolumeGrid();renderVolumeTable();updateStats();renderSchedule();buildPerGrid();buildModGrid();buildOilTypeGrid();}
+
+// ── INIT ──
+// Show loading state immediately
+setSaveStatus("","Conectando...");
+renderFilialSelector();
+buildFilters();
+// Load data async (cloud or local)
+loadFromStorage(); // async — calls rebuildAll() when done
+</script>
+</body>
+</html>
